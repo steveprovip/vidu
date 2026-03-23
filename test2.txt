@@ -1,2 +1,6 @@
+ HEAD
 loa, toi la linh
 day la tiet cuoi
+
+loa
+ parent of d011fc7 (version 2)
