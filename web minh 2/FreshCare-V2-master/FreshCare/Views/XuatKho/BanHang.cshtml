@@ -90,9 +90,13 @@
                 // Luật #10: ràng buộc đơn vị (Kg, Lít, Mili-lít cho phép số thập phân)
                 var decimalUnits = ['Kg', 'Lít', 'Mili-lít', 'Mi-li-lít'];
                 if (decimalUnits.includes(data.donViTinh)) {
-                    $('#txtSoLuongXuat').attr('step', '0.01');
+                    $('#txtSoLuongXuat').attr('step', '0.01').attr('min', '0.01');
                 } else {
-                    $('#txtSoLuongXuat').attr('step', '1');
+                    $('#txtSoLuongXuat').attr('step', '1').attr('min', '1');
+                    var currentVal = parseFloat($('#txtSoLuongXuat').val());
+                    if (currentVal && currentVal < 1) {
+                        $('#txtSoLuongXuat').val('1');
+                    }
                 }
             }
         });

@@ -37,13 +37,10 @@ namespace FreshCare.Models
         }
 
         /// <summary>
-        /// Luật #8 mới: Giá thực tế (Sale lũy tiến)
-        /// - < 14 ngày: Giảm % cơ bản của danh mục.
-        /// - < 7 ngày: Giảm thêm 10%.
-        /// - < 3 ngày: Giảm thêm 20%.
-        /// Tối đa 90% để tránh giá bằng 0.
+        /// Tổng phần trăm sale: 
+        /// Base sale + Giá trị cộng dồn nếu cực sát ngày hết hạn
         /// </summary>
-        public decimal GiaThucTe
+        public decimal TongPhanTramSale
         {
             get
             {
@@ -52,11 +49,27 @@ namespace FreshCare.Models
                     decimal extraSale = 0;
                     int days = SoNgayConLai;
 
-                    if (days < 3) extraSale = 20;
-                    else if (days < 7) extraSale = 10;
+                    // Càng gần ngày hết hạn cộng thêm sale càng lớn
+                    if (days <= 3) extraSale = 40;
+                    else if (days <= 7) extraSale = 20;
 
-                    decimal tongSale = Math.Min(PhanTramSale + extraSale, 90);
-                    return GiaBanGoc * (100 - tongSale) / 100;
+                    return Math.Min(PhanTramSale + extraSale, 90);
+                }
+                return PhanTramSale;
+            }
+        }
+
+        /// <summary>
+        /// Luật #8 mới: Giá thực tế (Sale lũy tiến)
+        /// Tối đa giảm 90% để tránh giá bằng 0.
+        /// </summary>
+        public decimal GiaThucTe
+        {
+            get
+            {
+                if (TrangThai == "Cận Date")
+                {
+                    return GiaBanGoc * (100 - TongPhanTramSale) / 100;
                 }
                 return GiaBanGoc;
             }

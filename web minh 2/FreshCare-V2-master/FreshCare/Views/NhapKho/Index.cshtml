@@ -26,7 +26,7 @@
                                 <option value="">-- Chọn sản phẩm --</option>
                                 @foreach (var sp in Model.DanhSachSanPham)
                                 {
-                                    <option value="@sp.MaSP" data-dvt="@sp.DonViTinh" data-gia="@sp.GiaBan">
+                                    <option value="@sp.MaSP" data-dvt="@sp.DonViTinh" data-gia='@sp.GiaBan.ToString(System.Globalization.CultureInfo.InvariantCulture)'>
                                         @sp.TenSP (@sp.DonViTinh) - @sp.TenDanhMuc
                                     </option>
                                 }
@@ -146,10 +146,12 @@
         // Luật #10: Bó/Hộp/Khay/Chai/Vỉ... → số nguyên, (Kg, Lít, Mili-lít) → thập phân
         var decimalUnits = ['Kg', 'Lít', 'Mili-lít', 'Mi-li-lít'];
         if (decimalUnits.includes(dvt)) {
-            $('#txtSoLuong').attr('step', '0.01');
+            $('#txtSoLuong').attr('step', '0.01').attr('min', '0.01');
         } else {
-            $('#txtSoLuong').attr('step', '1');
-            $('#txtSoLuong').val(Math.round($('#txtSoLuong').val()));
+            $('#txtSoLuong').attr('step', '1').attr('min', '1');
+            var val = Math.round($('#txtSoLuong').val());
+            if (val < 1) val = 1;
+            $('#txtSoLuong').val(val);
         }
 
         // Hiển thị info card

@@ -62,6 +62,12 @@ namespace FreshCare.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ThemDanhMuc(string tenDanhMuc, decimal phanTramSale)
         {
+            if (HttpContext.Session.GetString("VaiTro") != "Admin")
+            {
+                TempData["Error"] = "Chỉ Quản lý mới có quyền thêm danh mục giảm giá!";
+                return RedirectToAction("DanhMuc");
+            }
+
             try
             {
                 using (var conn = DatabaseHelper.GetConnection(_connectionString))
@@ -90,6 +96,12 @@ namespace FreshCare.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult SuaDanhMuc(int maDanhMuc, string tenDanhMuc, decimal phanTramSale)
         {
+            if (HttpContext.Session.GetString("VaiTro") != "Admin")
+            {
+                TempData["Error"] = "Chỉ Quản lý mới có quyền chỉnh sửa mục giảm giá!";
+                return RedirectToAction("DanhMuc");
+            }
+
             try
             {
                 using (var conn = DatabaseHelper.GetConnection(_connectionString))
