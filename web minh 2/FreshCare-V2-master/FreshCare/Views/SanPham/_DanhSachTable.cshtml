@@ -1,0 +1,22 @@
+@model List<SanPham>
+
+@foreach (var sp in Model)
+{
+    <tr>
+        <td><strong>SP-@sp.MaSP.ToString("D3")</strong></td>
+        <td>@sp.TenSP</td>
+        <td><span class="badge bg-info">@sp.DonViTinh</span></td>
+        <td>@sp.GiaBan.ToString("N0")đ</td>
+        <td>@sp.TenDanhMuc</td>
+        <td>@(sp.MaVach ?? "—")</td>
+        <td>
+            <form asp-action="XoaSanPham" method="post" class="d-inline"
+                  onsubmit="return confirm('Xác nhận xóa sản phẩm @sp.TenSP?')">
+                <input type="hidden" name="maSP" value="@sp.MaSP" />
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-times"></i>
+                </button>
+            </form>
+        </td>
+    </tr>
+}

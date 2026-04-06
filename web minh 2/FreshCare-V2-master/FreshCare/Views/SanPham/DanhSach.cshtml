@@ -1,0 +1,140 @@
+@model List<SanPham>
+@{ ViewData["Title"] = "Danh sách Sản phẩm"; }
+
+<h4 class="section-title"><i class="fas fa-box me-2"></i>Quản Lý Sản Phẩm</h4>
+
+<!-- Bộ lọc và Tìm kiếm -->
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <button class="btn btn-fc-primary w-100" data-bs-toggle="modal" data-bs-target="#modalThemSP">
+            <i class="fas fa-plus me-1"></i>Thêm sản phẩm mới
+        </button>
+    </div>
+    <div class="col-md-5">
+        <div class="input-group">
+            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" 
+                   placeholder="Tìm tên sản phẩm hoặc mã vạch..." value="@ViewBag.Search" />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <select id="sortSelect" class="form-select">
+            <option value="default" selected="@(ViewBag.Sort == "default")">Sắp xếp: Mặc định</option>
+            <option value="name_asc" selected="@(ViewBag.Sort == "name_asc")">Tên sản phẩm (A-Z)</option>
+            <option value="name_desc" selected="@(ViewBag.Sort == "name_desc")">Tên sản phẩm (Z-A)</option>
+            <option value="price_asc" selected="@(ViewBag.Sort == "price_asc")">Giá bán (Thấp - Cao)</option>
+            <option value="price_desc" selected="@(ViewBag.Sort == "price_desc")">Giá bán (Cao - Thấp)</option>
+        </select>
+    </div>
+</div>
+
+<div class="card card-fc">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-fc table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Mã SP</th><th>Tên sản phẩm</th><th>Đơn vị tính</th>
+                        <th>Giá bán</th><th>Danh mục</th><th>Mã vạch</th><th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                    <partial name="_DanhSachTable" model="Model" />
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm Sản Phẩm -->
+<div class="modal fade" id="modalThemSP" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius:16px;">
+            <div class="modal-header" style="background:var(--fc-primary);color:#fff;border-radius:16px 16px 0 0;">
+                <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Thêm sản phẩm mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="ThemSanPham" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tên sản phẩm <span class="text-danger">*</span></label>
+                        <input name="tenSP" class="form-control" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Đơn vị tính <span class="text-danger">*</span></label>
+                            <select name="donViTinh" class="form-select" required>
+                                <option value="Kg">Kg</option>
+                                <option value="Bó">Bó</option>
+                                <option value="Hộp">Hộp</option>
+                                <option value="Khay">Khay</option>
+                                <option value="Chai">Chai</option>
+                                <option value="Gói">Gói</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                            <input name="giaBan" type="number" step="100" class="form-control" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Danh mục <span class="text-danger">*</span></label>
+                        <select name="maDanhMuc" class="form-select" required>
+                            @foreach (DanhMuc dm in ViewBag.DanhMucs)
+                            {
+                                <option value="@dm.MaDanhMuc">@dm.TenDanhMuc (Sale @dm.PhanTramSale%)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Mã vạch (Barcode)</label>
+                        <input name="maVach" class="form-control" placeholder="Quét hoặc nhập mã vạch" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Mô tả</label>
+                        <textarea name="moTa" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-fc-primary"><i class="fas fa-save me-1"></i>Lưu sản phẩm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Hàm gọi AJAX lọc sản phẩm
+            function filterProducts() {
+                var search = $('#searchInput').val();
+                var sort = $('#sortSelect').val();
+
+                $.ajax({
+                    url: '/SanPham/LocSanPham',
+                    type: 'GET',
+                    data: { search: search, sort: sort },
+                    success: function (res) {
+                        $('#productTableBody').html(res);
+                    },
+                    error: function () {
+                        console.log("Lỗi tải dữ liệu lọc.");
+                    }
+                });
+            }
+
+            // Sự kiện khi nhập vào ô tìm kiếm (delay 300ms để tránh request liên tục)
+            var timeout = null;
+            $('#searchInput').on('input', function () {
+                clearTimeout(timeout);
+                timeout = setTimeout(filterProducts, 300);
+            });
+
+            // Sự kiện khi thay đổi kiểu xắp xếp
+            $('#sortSelect').on('change', filterProducts);
+        });
+    </script>
+}
