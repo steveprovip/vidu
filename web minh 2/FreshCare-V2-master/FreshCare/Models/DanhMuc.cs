@@ -1,6 +1,6 @@
 namespace FreshCare.Models
 {
-    /// <summary>
+    /// <summary> alo tét
     /// Bảng Danh mục sản phẩm - chứa PhanTramSale cho giá cận date
     /// Luật #8: Tự động tính giá sale theo % giảm giá của từng danh mục
     /// </summary>
